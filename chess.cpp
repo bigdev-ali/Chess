@@ -88,8 +88,31 @@ void PrintBoard(){
         cout<<endl;
     }
 }
+struct Move{
+    int fromRow;
+    int fromCol;
+    int ToRow;
+    int ToCol;
+};
+bool Boundary(int row,int col){
+   return row >= 0 && row <= 7 && col >= 0 && col <= 7;
+}
+void MakeMove(Move m){
+    bool check=Boundary(m.ToRow,m.ToCol);
+    bool valid=Boundary(m.fromRow,m.fromCol);
+    if(check==false || valid==false){
+        cout<<"Invalid move combination"<<endl;
+    }
+    if(check==true && valid==true){
+        board[m.ToRow][m.ToCol]=board[m.fromRow][m.fromCol];
+        board[m.fromRow][m.fromCol].piece=Piece::Empty;
+        board[m.fromRow][m.fromCol].color=Color::None;
+    }
+}
 int main(){
     Setupboard();
+    Move pawnm={6,1,5,1};
+    MakeMove(pawnm);
     PrintBoard();
     return 0;
 }
