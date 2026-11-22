@@ -1,4 +1,5 @@
 #include<iostream>
+#include<cstdlib>
 using namespace std;
 enum class Piece{King,Queen,Knight,Rook,Pawn,Bishop,Empty};
 enum class Color{White,Black,None};
@@ -109,10 +110,77 @@ void MakeMove(Move m){
         board[m.fromRow][m.fromCol].color=Color::None;
     }
 }
+bool IsMoveValid(Move m){
+    bool check=Boundary(m.ToRow,m.ToCol);
+    bool valid=Boundary(m.fromRow,m.fromCol);
+    if(check==false || valid==false){
+        cout<<"Invalid move combination"<<endl;
+        return false;
+    }
+    if(board[m.fromRow][m.fromCol].piece==Piece::Empty){
+        cout<<"There is no piece in this position"<<endl;
+        return false;
+    }
+     if(m.fromRow==m.ToRow && m.fromCol==m.ToCol){
+        cout<<"This move does nothing"<<endl;
+        return false;
+    }
+    if(board[m.fromRow][m.fromCol].color==board[m.ToRow][m.ToCol].color){
+        cout<<"You can't capture a piece with the same color"<<endl;
+       return false;
+    }
+        switch(board[m.fromRow][m.fromCol].piece){
+            case Piece::Pawn:
+            return false;
+            case Piece::Knight:{
+            int dr=abs(m.ToRow-m.fromRow);
+            int dc=abs(m.ToCol-m.fromCol);
+            if((dr==1 && dc==2) || (dr==2 && dc==1)){
+                return true;
+            }
+            else{
+                return false;
+            }
+        }
+            case Piece::Bishop:
+            return false;
+            case Piece::Queen:
+            return false;
+            case Piece::Rook:
+            return false;
+            case Piece::King:
+            return false;
+            default:
+            return false;
+        }
+}
 int main(){
     Setupboard();
-    Move pawnm={6,1,5,1};
-    MakeMove(pawnm);
+    Move knight={7,1,5,2};
+    if(IsMoveValid(knight)){
+        MakeMove(knight);
+    }
+    else{
+        cout<<"Invalid move"<<endl;
+    }
+    PrintBoard();
+    Setupboard();
+    Move invalidKnight={7,1,5,1};
+    if(IsMoveValid(invalidKnight)){
+        MakeMove(invalidKnight);
+    }
+    else{
+        cout<<"Invalid move"<<endl;
+    }
+    PrintBoard();
+    Setupboard();
+    Move invalidKnight2={7,1,6,3};
+    if(IsMoveValid(invalidKnight2)){
+        MakeMove(invalidKnight2);
+    }
+    else{
+        cout<<"Invalid move"<<endl;
+    }
     PrintBoard();
     return 0;
 }
