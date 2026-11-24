@@ -95,6 +95,34 @@ struct Move{
     int ToRow;
     int ToCol;
 };
+bool PathClear(Move m){
+    int steprow=0;
+    int stepcol=0;
+    if(m.ToRow>m.fromRow){
+        steprow=1; //if the destination row is greater than the source row we need to step down
+    }
+    else if(m.ToRow<m.fromRow){ //if the destination row is less than the source row we need to step up
+        steprow=-1;
+    }
+    if(m.ToCol>m.fromCol){ //same for col equal cases are handled at intialisation
+        stepcol=1;
+    }
+    else if(m.ToCol<m.fromCol){
+        stepcol=-1;
+    }
+    int r=m.fromRow+steprow;
+    int c=m.fromCol+stepcol;
+    while(r!=m.ToRow || c!=m.ToCol){
+        if(board[r][c].piece==Piece::Empty){
+           r=r+steprow;
+           c=c+stepcol; 
+        }
+        else{
+            return false;
+        }
+    }
+    return true;
+}
 bool Boundary(int row,int col){
    return row >= 0 && row <= 7 && col >= 0 && col <= 7;
 }
@@ -147,40 +175,34 @@ bool IsMoveValid(Move m){
             case Piece::Queen:
             return false;
             case Piece::Rook:
+            if((m.ToCol==m.fromCol||m.ToRow==m.fromRow) && (PathClear(m)==true)){
+                return true;
+            }
+            else{
             return false;
+            }
             case Piece::King:
             return false;
             default:
             return false;
         }
 }
+void Test(Move m, const char* label){
+    cout << label << ": " << (IsMoveValid(m) ? "valid" : "invalid") << endl;
+}
+
 int main(){
     Setupboard();
-    Move knight={7,1,5,2};
-    if(IsMoveValid(knight)){
-        MakeMove(knight);
-    }
-    else{
-        cout<<"Invalid move"<<endl;
-    }
+
+    // fromRow, fromCol, ToRow, ToCol
+    Test({7,0,4,0}, "Rook through own pawn (expect invalid)");
+    Test({7,0,5,2}, "Diagonal rook move (expect invalid)");
+    MakeMove({6,0,3,3});
     PrintBoard();
-    Setupboard();
-    Move invalidKnight={7,1,5,1};
-    if(IsMoveValid(invalidKnight)){
-        MakeMove(invalidKnight);
-    }
-    else{
-        cout<<"Invalid move"<<endl;
-    }
-    PrintBoard();
-    Setupboard();
-    Move invalidKnight2={7,1,6,3};
-    if(IsMoveValid(invalidKnight2)){
-        MakeMove(invalidKnight2);
-    }
-    else{
-        cout<<"Invalid move"<<endl;
-    }
+    Test({7,0,5,0}, "Rook up two, clear path (expect valid)");
+    Test({7,0,1,0}, "Rook captures black pawn (expect valid)");
+    Test({7,0,0,0}, "Rook blocked by black pawn (expect invalid)");
+    MakeMove({7,0,3,0});
     PrintBoard();
     return 0;
 }
