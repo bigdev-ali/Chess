@@ -170,8 +170,16 @@ bool IsMoveValid(Move m){
                 return false;
             }
         }
-            case Piece::Bishop:
-            return false;
+            case Piece::Bishop:{
+                int dr=abs(m.ToRow-m.fromRow);
+                int dc=abs(m.ToCol-m.fromCol);
+                if((dc==dr) && (PathClear(m)==true)){
+                    return true;
+                }
+                else{
+                    return false;
+                }
+            }
             case Piece::Queen:
             return false;
             case Piece::Rook:
@@ -193,16 +201,17 @@ void Test(Move m, const char* label){
 
 int main(){
     Setupboard();
+    Test({7,2,5,4}, "Bishop through own pawn (expect invalid)");
+    Test({7,2,5,3}, "Knight-shaped bishop move (expect invalid)");
+    Test({7,2,5,2}, "Bishop straight up (expect invalid)");
+    Test({7,2,6,1}, "Bishop onto own pawn (expect invalid)");
+    MakeMove({6,3,3,3});
+    MakeMove({1,4,4,5});
+    PrintBoard();
+    Test({7,2,6,3}, "Bishop one square diagonal (expect valid)");
+    Test({7,2,5,4}, "Bishop two squares, clear (expect valid)");
+    Test({7,2,4,5}, "Bishop captures black pawn (expect valid)");
+    Test({7,2,3,6}, "Bishop blocked by black pawn (expect invalid)");
 
-    // fromRow, fromCol, ToRow, ToCol
-    Test({7,0,4,0}, "Rook through own pawn (expect invalid)");
-    Test({7,0,5,2}, "Diagonal rook move (expect invalid)");
-    MakeMove({6,0,3,3});
-    PrintBoard();
-    Test({7,0,5,0}, "Rook up two, clear path (expect valid)");
-    Test({7,0,1,0}, "Rook captures black pawn (expect valid)");
-    Test({7,0,0,0}, "Rook blocked by black pawn (expect invalid)");
-    MakeMove({7,0,3,0});
-    PrintBoard();
     return 0;
 }
