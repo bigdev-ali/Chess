@@ -197,8 +197,16 @@ bool IsMoveValid(Move m){
             else{
             return false;
             }
-            case Piece::King:
-            return false;
+            case Piece::King:{
+                int dr=abs(m.ToRow-m.fromRow);
+                int dc=abs(m.ToCol-m.fromCol);
+                if(dr<=1 && dc<=1){
+                    return true;
+                }
+                else{
+                    return false;
+                }
+            }
             default:
             return false;
         }
@@ -211,23 +219,21 @@ int main(){
     Setupboard();
 
     // fromRow, fromCol, ToRow, ToCol
-    Test({7,3,5,3}, "Queen through own pawn, straight (expect invalid)");
-    Test({7,3,5,5}, "Queen through own pawn, diagonal (expect invalid)");
-    Test({7,3,5,4}, "Knight-shaped queen move (expect invalid)");
-    Test({7,3,6,3}, "Queen onto own pawn (expect invalid)");
+    Test({7,4,6,4}, "King onto own pawn, straight (expect invalid)");
+    Test({7,4,6,3}, "King onto own pawn, diagonal (expect invalid)");
 
-    // teleport the queen to the middle, and a black pawn onto her row
-    MakeMove({7,3,4,3});
-    MakeMove({1,0,4,0});
+    // teleport the white king to the middle, and a black pawn next to it
+    MakeMove({7,4,4,4});
+    MakeMove({1,4,3,4});
     PrintBoard();
 
-    Test({4,3,4,1}, "Queen sideways, clear (expect valid)");
-    Test({4,3,4,0}, "Queen captures sideways (expect valid)");
-    Test({4,3,1,3}, "Queen captures straight up (expect valid)");
-    Test({4,3,1,6}, "Queen captures diagonally (expect valid)");
-    Test({4,3,0,3}, "Queen blocked by black pawn (expect invalid)");
-    Test({4,3,2,4}, "Knight-shaped queen move, open board (expect invalid)");
-    Test({4,3,5,4}, "Queen one square diagonal back (expect valid)");
+    Test({4,4,3,4}, "King captures pawn one square up (expect valid)");
+    Test({4,4,3,5}, "King one square diagonal (expect valid)");
+    Test({4,4,4,3}, "King one square sideways (expect valid)");
+    Test({4,4,5,4}, "King one square back (expect valid)");
+    Test({4,4,2,4}, "King two squares up (expect invalid)");
+    Test({4,4,2,5}, "Knight-shaped king move (expect invalid)");
+    Test({4,4,4,6}, "King two squares sideways, castling-shaped (expect invalid)");
 
     return 0;
 }
