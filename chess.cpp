@@ -158,8 +158,33 @@ bool IsMoveValid(Move m){
        return false;
     }
         switch(board[m.fromRow][m.fromCol].piece){
-            case Piece::Pawn:
+            case Piece::Pawn:{
+                int dr=m.ToRow-m.fromRow;
+                int dc=abs(m.ToCol-m.fromCol);
+                if(dc==0){
+                    if(board[m.fromRow][m.fromCol].color==Color::White && dr==-1 && board[m.ToRow][m.ToCol].piece==Piece::Empty){
+                        return true;
+                    }
+                    if((board[m.fromRow][m.fromCol].color==Color::Black && dr==1 && board[m.ToRow][m.ToCol].piece==Piece::Empty)){
+                        return true;
+                    }
+                    if((board[m.fromRow][m.fromCol].color==Color::Black && m.fromRow==1 && dr==2 && board[m.ToRow][m.ToCol].piece==Piece::Empty && PathClear(m)==true)){
+                        return true;
+                    }
+                    if((board[m.fromRow][m.fromCol].color==Color::White && m.fromRow==6 && dr==-2 && board[m.ToRow][m.ToCol].piece==Piece::Empty && PathClear(m)==true)){
+                        return true;
+                    }
+                    }
+                if(dc==1){
+                    if(board[m.fromRow][m.fromCol].color==Color::White && dr==-1 && board[m.ToRow][m.ToCol].color==Color::Black){
+                        return true;
+                    }
+                    if(board[m.fromRow][m.fromCol].color==Color::Black && dr==1 && board[m.ToRow][m.ToCol].color==Color::White){
+                        return true;
+                    }
+                }
             return false;
+            }
             case Piece::Knight:{
             int dr=abs(m.ToRow-m.fromRow);
             int dc=abs(m.ToCol-m.fromCol);
@@ -214,26 +239,32 @@ bool IsMoveValid(Move m){
 void Test(Move m, const char* label){
     cout << label << ": " << (IsMoveValid(m) ? "valid" : "invalid") << endl;
 }
-
 int main(){
     Setupboard();
 
     // fromRow, fromCol, ToRow, ToCol
-    Test({7,4,6,4}, "King onto own pawn, straight (expect invalid)");
-    Test({7,4,6,3}, "King onto own pawn, diagonal (expect invalid)");
+    Test({6,4,5,4}, "White pawn one step (expect valid)");
+    Test({6,4,4,4}, "White pawn two steps (expect valid)");
+    Test({6,4,3,4}, "White pawn three steps (expect invalid)");
+    Test({6,4,5,5}, "White pawn diagonal onto empty square (expect invalid)");
+    Test({1,3,3,3}, "Black pawn two steps (expect valid)");
 
-    // teleport the white king to the middle, and a black pawn next to it
-    MakeMove({7,4,4,4});
-    MakeMove({1,4,3,4});
+    // black knight in front of the e-pawn, black knight behind it diagonally,
+    // white knight in front of the black d-pawn, white a-pawn off its start row
+    MakeMove({0,1,5,4});
+    MakeMove({0,6,7,5});
+    MakeMove({7,1,2,3});
+    MakeMove({6,0,4,0});
     PrintBoard();
 
-    Test({4,4,3,4}, "King captures pawn one square up (expect valid)");
-    Test({4,4,3,5}, "King one square diagonal (expect valid)");
-    Test({4,4,4,3}, "King one square sideways (expect valid)");
-    Test({4,4,5,4}, "King one square back (expect valid)");
-    Test({4,4,2,4}, "King two squares up (expect invalid)");
-    Test({4,4,2,5}, "Knight-shaped king move (expect invalid)");
-    Test({4,4,4,6}, "King two squares sideways, castling-shaped (expect invalid)");
+    Test({6,4,5,4}, "White pawn blocked one step (expect invalid)");
+    Test({6,4,4,4}, "White pawn double step blocked in the middle (expect invalid)");
+    Test({6,3,5,4}, "White pawn captures diagonally forward (expect valid)");
+    Test({6,4,7,5}, "White pawn captures backward (expect invalid)");
+    Test({1,4,2,3}, "Black pawn captures diagonally forward (expect valid)");
+    Test({1,3,2,3}, "Black pawn blocked one step (expect invalid)");
+    Test({1,3,3,3}, "Black pawn double step blocked in the middle (expect invalid)");
+    Test({4,0,2,0}, "Pawn double step off its start row (expect invalid)");
 
     return 0;
 }
